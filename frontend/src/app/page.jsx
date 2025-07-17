@@ -14,6 +14,8 @@ import {
 } from '@heroicons/react/24/outline'
 import CurrentTime from '../components/CurrentTime'
 import FloatingSpotifyIcon from '../components/FloatingSpotifyIcon'
+import ThemeModalTrigger from '../components/ThemeModalTrigger'
+
 
 const sidebarItems = [
   { label: 'Pomo', icon: ClockIcon, href: '/pomodoro' },

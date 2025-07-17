@@ -6,12 +6,12 @@ export default function FloatingSpotifyIcon() {
   const controls = useAnimation();
   const [isDragging, setIsDragging] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [initialPos, setInitialPos] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const x = window.innerWidth - 80;
     const y = window.innerHeight / 2 - 30;
-    setInitialPos({ x, y });
+    setPosition({ x, y });
 
     if (!isOpen) {
       controls.start({
@@ -23,15 +23,21 @@ export default function FloatingSpotifyIcon() {
         },
       });
     }
-  }, [controls, isOpen]);
+  }, []);
 
   const handleDragStart = () => {
     setIsDragging(true);
     controls.start({ scale: 1.2, rotate: 0 });
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (event, info) => {
     setIsDragging(false);
+
+    setPosition({
+      x: info.point.x,
+      y: info.point.y,
+    });
+
     if (!isOpen) {
       controls.start({
         scale: 1,
@@ -49,9 +55,11 @@ export default function FloatingSpotifyIcon() {
   };
 
   const toggleOpen = () => {
-    setIsOpen(!isOpen);
-    if (isOpen) {
-      // resume spinning when closing
+    const next = !isOpen;
+    setIsOpen(next);
+
+    if (!next) {
+      // Closing — resume spinning
       controls.start({
         rotate: 360,
         transition: {
@@ -61,7 +69,32 @@ export default function FloatingSpotifyIcon() {
         },
       });
     } else {
-      controls.stop(); // stop spinning
+      // Opening — stop spinning
+      controls.stop();
+
+      // Check and adjust position if it overflows
+      const rectWidth = 250;
+      const rectHeight = 100;
+      const padding = 20;
+
+      let newX = position.x;
+      let newY = position.y;
+
+      if (newX + rectWidth > window.innerWidth - padding) {
+        newX = window.innerWidth - rectWidth - padding;
+      }
+      if (newX < padding) {
+        newX = padding;
+      }
+
+      if (newY + rectHeight > window.innerHeight - padding) {
+        newY = window.innerHeight - rectHeight - padding;
+      }
+      if (newY < padding) {
+        newY = padding;
+      }
+
+      setPosition({ x: newX, y: newY });
     }
   };
 
@@ -71,8 +104,11 @@ export default function FloatingSpotifyIcon() {
       dragMomentum={false}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      initial={{ x: initialPos.x, y: initialPos.y }}
-      animate={{ x: initialPos.x, y: initialPos.y }}
+      animate={{
+        x: position.x,
+        y: position.y,
+        transition: { type: 'spring', stiffness: 300, damping: 30 },
+      }}
       style={{
         width: isOpen ? 250 : 60,
         height: isOpen ? 100 : 60,
@@ -110,7 +146,7 @@ export default function FloatingSpotifyIcon() {
       {isOpen && (
         <motion.button
           onClick={(e) => {
-            e.stopPropagation(); // avoid triggering toggleOpen again
+            e.stopPropagation();
             setIsOpen(false);
           }}
           style={{
