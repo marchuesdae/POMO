@@ -14,7 +14,8 @@ import {
 } from '@heroicons/react/24/outline'
 import CurrentTime from '../components/CurrentTime'
 import FloatingSpotifyIcon from '../components/FloatingSpotifyIcon'
-import ThemeModalTrigger from '../components/ThemeModalTrigger'
+import ThemeModal from '../components/ThemeModal'
+import { useState } from 'react';
 
 
 const sidebarItems = [
@@ -28,6 +29,7 @@ const sidebarItems = [
 ]
 
 export default function Home() {
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
   return (
     <main className="min-h-screen relative bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100">
       {/* Unlock more button above sidebar */}
@@ -39,7 +41,20 @@ export default function Home() {
           <LockClosedIcon className="w-5 h-5 md:w-6 md:h-6 mr-1" />
           <span className="font-bold">Unlock more</span>
         </Link>
-        {sidebarItems.map(({ label, icon: Icon, href }) => (
+        {sidebarItems.map(({ label, icon: Icon, href }) =>
+          label === 'Theme' ? (
+            <div
+              key={label}
+              onClick={() => setThemeModalOpen(true)}
+              className="flex flex-col items-center group bg-white/80 backdrop-blur-md rounded-xl shadow-xl w-14 md:w-20 py-3 px-1 md:py-4 md:px-2 md:rounded-2xl hover:bg-indigo-100 transition-all cursor-pointer"
+              style={{ userSelect: 'none' }}
+            >
+              <Icon className="w-6 h-6 md:w-7 md:h-7 text-indigo-600 group-hover:text-indigo-800 mb-0.5" />
+              <span className="text-[9px] md:text-xs text-gray-700 group-hover:text-indigo-800 text-center font-medium hidden md:block leading-tight">
+                {label}
+              </span>
+            </div>
+          ) : (
             <Link
               key={label}
               href={href}
@@ -50,8 +65,14 @@ export default function Home() {
                 {label}
               </span>
             </Link>
-          ))}
+          )
+        )}
       </div>
+      {/* Modal for Theme */}
+      <ThemeModal open={themeModalOpen} onClose={() => setThemeModalOpen(false)}>
+        <h2 className="text-lg font-semibold mb-4">Theme Settings</h2>
+        <p className="text-gray-700">Ibutang diri ang imong theme options o settings.</p>
+      </ThemeModal>
       {/* Top bar with login/signup */}
       <header className="w-full flex justify-end items-center px-4 py-4 md:px-8 md:py-6 fixed top-0 left-0 z-10 bg-transparent">
         <div className="flex space-x-3">
